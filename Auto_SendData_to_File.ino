@@ -1,7 +1,7 @@
 #include <SoftwareSerial.h>
 #define DEBUG true
 
-SoftwareSerial ser(10, 11); // RX, TX
+SoftwareSerial ser(10, 11); // TX, RX
 
 void setup() {
   // put your setup code here, to run once:
