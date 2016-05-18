@@ -1,0 +1,309 @@
+#include <Wire.h>
+#include <RTClib.h>
+
+#include <SoftwareSerial.h>
+#include <Time.h>
+#include <TimeAlarms.h>
+#include <Servo.h> 
+
+#define DEBUG true
+
+//SERVO
+Servo myservo1;
+Servo myservo2;
+Servo myservo3;
+
+//ESP
+SoftwareSerial ser(10, 11); // RX,TX
+
+//LDR
+int hasilSensorLDR1;
+int hasilSensorLDR2;
+
+//SERVO
+int temp1;
+int temp2;
+int temp3;
+
+RTC_DS1307 rtc;
+
+void setup() {
+  delay(5000);          
+  Serial.begin(115200);
+
+  //---- SETUP WIFI ----
+  //ser.begin(115200);
+  //connectWifi();
+  
+  //---- SET UP RTC ----
+  setTime(4,26,50,3,5,16); // set time to Saturday 8:29:00am Jan 1 2011
+  // create the alarms 
+  Alarm.alarmRepeat(4,26,55, MorningAlarm);  // 10:17am every day
+  Alarm.alarmRepeat(4,30,0,EveningAlarm);  // 5:45pm every day 
+  Alarm.alarmRepeat(dowSaturday,8,30,30,WeeklyAlarm);  // 8:30:30 every Saturday 
+
+  Alarm.timerRepeat(15, Repeats);// timer for every 15 seconds    
+  Alarm.timerOnce(10, OnceOnly); // called once after 10 seconds
+  
+  //---- SETUP SERVO
+  myservo1.attach(7);
+  myservo2.attach(8);
+  myservo3.attach(9); 
+  }
+
+void loop() {
+  //---- RTC ----
+  digitalClockDisplay();
+  Alarm.delay(1000); // wait one second between clock display
+  
+  //---- LDR ----
+  hasilSensorLDR1=analogRead(0); // Hasil LDR = Hasil input pada pin A0
+  sendDataSensor1(hasilSensorLDR1);
+  hasilSensorLDR2=analogRead(1); // Hasil LDR = Hasil input pada pin A0
+  sendDataSensor2(hasilSensorLDR2);
+  delay(1000);
+}
+
+void sendDataSensor1(int sensor) {
+  String cmd = "AT+CIPSTART=\"TCP\",\"";
+  
+  cmd += "192.168.102.1";
+  cmd += "\",80\r\n";
+  sendCommand(cmd,1000,DEBUG);
+  delay(5000);
+  
+  String cmd2 = "GET /sendDataSensor1.php?sensor="; // Link ke skrip PHP                    
+  cmd2 += sensor;  
+  cmd2 += " HTTP/1.1\r\n";
+  cmd2 += "Host: 192.168.102.1\r\n\r\n\r\n"; // Host
+  String pjg="AT+CIPSEND=";
+  pjg += cmd2.length();
+  pjg += "\r\n";
+    
+  sendCommand(pjg,1000,DEBUG);
+  delay(500);
+  sendCommand(cmd2,1000,DEBUG);
+  delay(5000);
+}
+
+void sendDataSensor2(int sensor) {
+  String cmd = "AT+CIPSTART=\"TCP\",\"";
+  
+  cmd += "192.168.102.1";
+  cmd += "\",80\r\n";
+  sendCommand(cmd,1000,DEBUG);
+  delay(5000);
+  
+  String cmd2 = "GET /sendDataSensor2.php?sensor="; // Link ke skrip PHP                    
+  cmd2 += sensor;  
+  cmd2 += " HTTP/1.1\r\n";
+  cmd2 += "Host: 192.168.102.1\r\n\r\n\r\n"; // Host
+  String pjg="AT+CIPSEND=";
+  pjg += cmd2.length();
+  pjg += "\r\n";
+    
+  sendCommand(pjg,1000,DEBUG);
+  delay(500);
+  sendCommand(cmd2,1000,DEBUG);
+  delay(5000);
+}
+
+void sendDataServo1(int temp1) {
+  String cmd = "AT+CIPSTART=\"TCP\",\"";
+  
+  cmd += "192.168.102.1";
+  cmd += "\",80\r\n";
+  sendCommand(cmd,1000,DEBUG);
+  delay(5000);
+  
+  String cmd2 = "GET /sendDataServo1.php?temp1="; // Link ke skrip PHP                    
+  cmd2 += temp1;  
+  cmd2 += " HTTP/1.1\r\n";
+  cmd2 += "Host: 192.168.102.1\r\n\r\n\r\n"; // Host
+  String pjg="AT+CIPSEND=";
+  pjg += cmd2.length();
+  pjg += "\r\n";
+    
+  sendCommand(pjg,1000,DEBUG);
+  delay(500);
+  sendCommand(cmd2,1000,DEBUG);
+  delay(5000);
+}
+
+void sendDataServo2(int temp2) {
+  String cmd = "AT+CIPSTART=\"TCP\",\"";
+  
+  cmd += "192.168.102.1";
+  cmd += "\",80\r\n";
+  sendCommand(cmd,1000,DEBUG);
+  delay(5000);
+  
+  String cmd2 = "GET /sendDataServo2.php?temp2="; // Link ke skrip PHP                    
+  cmd2 += temp2;  
+  cmd2 += " HTTP/1.1\r\n";
+  cmd2 += "Host: 192.168.102.1\r\n\r\n\r\n"; // Host
+  String pjg="AT+CIPSEND=";
+  pjg += cmd2.length();
+  pjg += "\r\n";
+    
+  sendCommand(pjg,1000,DEBUG);
+  delay(500);
+  sendCommand(cmd2,1000,DEBUG);
+  delay(5000);
+}
+
+void sendDataServo3(int temp3) {
+  String cmd = "AT+CIPSTART=\"TCP\",\"";
+  
+  cmd += "192.168.102.1";
+  cmd += "\",80\r\n";
+  sendCommand(cmd,1000,DEBUG);
+  delay(5000);
+  
+  String cmd2 = "GET /sendDataServo3.php?temp3="; // Link ke skrip PHP                    
+  cmd2 += temp3;  
+  cmd2 += " HTTP/1.1\r\n";
+  cmd2 += "Host: 192.168.102.1\r\n\r\n\r\n"; // Host
+  String pjg="AT+CIPSEND=";
+  pjg += cmd2.length();
+  pjg += "\r\n";
+    
+  sendCommand(pjg,1000,DEBUG);
+  delay(500);
+  sendCommand(cmd2,1000,DEBUG);
+  delay(5000);
+}
+
+String sendCommand(String command, const int timeout, boolean debug) {
+  String response = "";
+      
+  ser.print(command); // send the read character to the esp8266
+      
+  long int time = millis();
+      
+  while( (time+timeout) > millis()) {
+    while(ser.available()) {
+      // The esp has data so display its output to the serial window 
+      char c = ser.read(); // read the next character.
+      response+=c;
+    }  
+  }
+      
+  if(debug) {
+    Serial.print(response);
+  }
+  return response;
+}
+
+void connectWifi() {
+  //Set-wifi
+  Serial.print("Restart Module...\n");
+  sendCommand("AT+RST\r\n",2000,DEBUG); // reset module
+  delay(5000);
+  Serial.print("Set wifi mode : STA...\n");
+  sendCommand("AT+CWMODE=1\r\n",1000,DEBUG); // configure as access point
+  delay(5000);
+  Serial.print("Connect to access point...\n");
+  sendCommand("AT+CWJAP=\"Connectify-Ai\",\"airenrizky\"\r\n",3000,DEBUG);
+  delay(5000);
+  Serial.print("Check IP Address...\n");
+  sendCommand("AT+CIFSR\r\n",1000,DEBUG); // get ip address
+  delay(5000);
+  Serial.print("TCP/UDP Connection...\n");
+  sendCommand("AT+CIPMUX=0\r\n",2000,DEBUG); // reset module
+  delay(5000);
+}
+
+void MorningAlarm(){
+  temp1 = 0;
+  temp2 = 0;
+  temp3 = 0;
+  
+  Serial.println("Pintu jenis makanan I terbuka");   
+  // pada posisi 1 derajat
+  // memberitahu servo untuk pergi ke posisi  180 derajat
+  if (temp1 <= 0) {
+    myservo1.write(200);
+    // tunggu 15ms untuk pencapaian  posisi servo    
+    delay(1000);
+    myservo1.write(90);
+    // tunggu 15ms untuk pencapaian  posisi servo    
+    delay(15); 
+    temp1 = temp1+1;
+    sendDataServo1(temp1);
+  }
+
+  Serial.println("Pintu jenis makanan II terbuka");  
+  if (temp2 <= 0) {
+    myservo2.write(90);
+    // tunggu 15ms untuk pencapaian  posisi servo    
+    delay(1000);
+    myservo2.write(10);
+    // tunggu 15ms untuk pencapaian  posisi servo    
+    delay(15); 
+    temp2 = temp2+1;
+    sendDataServo2(temp2);
+  }  
+
+  Serial.println("Makanan jatuh ke takaran");  
+  if (temp3 <= 0) {
+    myservo3.write(-30);
+    // tunggu 15ms untuk pencapaian  posisi servo    
+    delay(3000);
+    myservo3.write(110);
+    // tunggu 15ms untuk pencapaian  posisi servo    
+    delay(15); 
+    temp3 = temp3+1;
+    sendDataServo3(temp3);
+  }    
+}
+
+void EveningAlarm(){
+  temp2 = 0;
+  Serial.println("Servo1 gerak 180 derajat dan balik lagi");   
+  // pada posisi 1 derajat
+  // memberitahu servo untuk pergi ke posisi  180 derajat
+  if (temp2 <= 0) {
+    myservo2.write(180);
+    // tunggu 15ms untuk pencapaian  posisi servo    
+    delay(1000);
+    myservo2.write(90);
+    // tunggu 15ms untuk pencapaian  posisi servo    
+    delay(15); 
+    temp2 = temp2+1;
+    sendDataServo2(temp2);
+  }       
+}
+
+void WeeklyAlarm(){
+  Serial.println("Alarm: - its Monday Morning");      
+}
+
+void ExplicitAlarm(){
+  Serial.println("Alarm: - this triggers only at the given date and time");       
+}
+
+void Repeats(){
+  Serial.println("15 second timer");         
+}
+
+void OnceOnly(){
+  Serial.println("This timer only triggers once");  
+}
+
+void digitalClockDisplay()
+{
+  // digital clock display of the time
+  Serial.print(hour());
+  printDigits(minute());
+  printDigits(second());
+  Serial.println(); 
+}
+
+void printDigits(int digits)
+{
+  Serial.print(":");
+  if(digits < 10)
+    Serial.print('0');
+  Serial.print(digits);
+}
